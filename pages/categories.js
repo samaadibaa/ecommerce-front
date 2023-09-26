@@ -5,7 +5,7 @@ import {Product} from "@/models/Product";
 import ProductBox from "@/components/ProductBox";
 import styled from "styled-components";
 import Link from "next/link";
-
+import {mongooseConnect} from "@/lib/mongoose";
 
 const CategoryGrid = styled.div`
   display: grid;
@@ -79,6 +79,7 @@ export default function CategoriesPage({mainCategories,categoriesProducts}) {
 }
 
 export async function getServerSideProps() {
+  await mongooseConnect();
   const categories = await Category.find();
   const mainCategories = categories.filter(c => !c.parent);
   const categoriesProducts = {}; // catId => [products]
