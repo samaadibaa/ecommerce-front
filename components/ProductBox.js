@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useContext} from "react";
 import {CartContext} from "@/components/CartContext";
 
+
 const ProductWrapper = styled.div`
 
 `;
