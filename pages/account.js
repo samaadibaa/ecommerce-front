@@ -10,6 +10,9 @@ import Input from "@/components/Input";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import Spinner from "@/components/Spinner";
+import ProductBox from "@/components/ProductBox";
+import Tabs from "@/components/Tabs";
+import SingleOrder from "@/components/SingleOrder";
 
 const ColsWrapper = styled.div`
   display:grid;
@@ -40,7 +43,13 @@ export default function AccountPage() {
   const [postalCode,setPostalCode] = useState('');
   const [streetAddress,setStreetAddress] = useState('');
   const [country,setCountry] = useState('');
-  const [loaded,setLoaded] = useState('false');
+  const [addressLoaded,setAddressLoaded] = useState(true);
+  const [wishlistLoaded,setWishlistLoaded] = useState(true);
+  const [orderLoaded,setOrderLoaded] = useState(true);
+  const [wishedProducts,setWishedProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState('Orders');
+  const [orders, setOrders] = useState([]);
+
   async function logout() {
     await signOut({
       callbackUrl: process.env.NEXT_PUBLIC_URL,
@@ -54,6 +63,12 @@ export default function AccountPage() {
     axios.put('/api/address', data);
   }
   useEffect(() => {
+    if (!session) {
+      return;
+    }
+    setAddressLoaded(false);
+    setWishlistLoaded(false);
+    setOrderLoaded(false);
     axios.get('/api/address').then(response => {
       setName(response.data.name);
       setEmail(response.data.email);
@@ -61,10 +76,22 @@ export default function AccountPage() {
       setPostalCode(response.data.postalCode);
       setStreetAddress(response.data.streetAddress);
       setCountry(response.data.country);
-      setLoaded(true);
+      setAddressLoaded(true);
     });
-
-  }, []);
+    axios.get('/api/wishlist').then(response => {
+      setWishedProducts(response.data.map(wp => wp.product));
+      setWishlistLoaded(true);
+    });
+    axios.get('/api/orders').then(response => {
+      setOrders(response.data);
+      setOrderLoaded(true);
+    });
+  }, [session]);
+  function productRemovedFromWishlist(idToRemove) {
+    setWishedProducts(products => {
+      return [...products.filter(p => p._id.toString() !== idToRemove)];
+    });
+  }
   return (
     <>
       <Header />
@@ -73,18 +100,65 @@ export default function AccountPage() {
           <div>
             <RevealWrapper delay={0}>
               <WhiteBox>
-                <h2>Wishlist</h2>
+                <Tabs
+                  tabs={['Orders','Wishlist']}
+                  active={activeTab}
+                  onChange={setActiveTab}
+                />
+                {activeTab === 'Orders' && (
+                  <>
+                    {!orderLoaded && (
+                      <Spinner fullWidth={true} />
+                    )}
+                    {orderLoaded && (
+                      <div>
+                        {orders.length === 0 && (
+                          <p>Login to see your orders</p>
+                        )}
+                        {orders.length > 0 && orders.map(o => (
+                          <SingleOrder {...o} />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+                {activeTab === 'Wishlist' && (
+                  <>
+                    {!wishlistLoaded && (
+                      <Spinner fullWidth={true} />
+                    )}
+                    {wishlistLoaded && (
+                      <>
+                        <WishedProductsGrid>
+                          {wishedProducts.length > 0 && wishedProducts.map(wp => (
+                            <ProductBox key={wp._id} {...wp} wished={true} onRemoveFromWishlist={productRemovedFromWishlist} />
+                          ))}
+                        </WishedProductsGrid>
+                        {wishedProducts.length === 0 && (
+                          <>
+                            {session && (
+                              <p>Your wishlist is empty</p>
+                            )}
+                            {!session && (
+                              <p>Login to add products to your wishlist</p>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
               </WhiteBox>
             </RevealWrapper>
           </div>
           <div>
             <RevealWrapper delay={100}>
               <WhiteBox>
-                <h2>Account Details</h2>
-                {!loaded && (
+                <h2>{session ? 'Account details' : 'Login'}</h2>
+                {!addressLoaded && (
                   <Spinner fullWidth={true} />
                 )}
-                {loaded && (
+                {addressLoaded && session && (
                   <>
                     <Input type="text"
                            placeholder="Name"

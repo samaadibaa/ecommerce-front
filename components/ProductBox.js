@@ -91,6 +91,7 @@ export default function ProductBox({
   _id,title,description,price,images,wished=false,
   onRemoveFromWishlist=()=>{},
 }) {
+  const {addProduct} = useContext(CartContext);
   const url = '/product/'+_id;
   const [isWished,setIsWished] = useState(wished);
   function addToWishlist(ev) {
