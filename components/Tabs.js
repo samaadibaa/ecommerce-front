@@ -8,23 +8,32 @@ const StyledTabs = styled.div`
 const StyledTab = styled.span`
   font-size: 1.5rem;
   cursor: pointer;
-  ${props => props.active ? `
+  ${props =>
+    props.active
+      ? `
     color:black;
     border-bottom: 2px solid black;
-  ` : `
+  `
+      : `
     color:#999;
   `}
 `;
 
-export default function Tabs({tabs,active,onChange}) {
+export default function Tabs({ tabs, active, onChange }) {
   return (
     <StyledTabs>
-      {tabs.map(tabName => (
+      {tabs.map((tabName, index) => (
         <StyledTab
-          onClick={() => { onChange(tabName) }}
+          key={index} // Add key prop with a unique value
+          onClick={() => {
+            onChange(tabName);
+          }}
           active={tabName === active}
-        >{tabName}</StyledTab>
+        >
+          {tabName}
+        </StyledTab>
       ))}
     </StyledTabs>
   );
 }
+
