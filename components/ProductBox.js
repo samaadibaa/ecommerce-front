@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useContext, useEffect, useState} from "react";
 import {CartContext} from "@/components/CartContext";
 import {primary} from "@/lib/colors";
+import FlyingButton from "@/components/FlyingButton";
 import HeartOutlineIcon from "@/components/icons/HeartOutlineIcon";
 import HeartSolidIcon from "@/components/icons/HeartSolidIcon";
 import axios from "axios";
@@ -91,7 +92,6 @@ export default function ProductBox({
   _id,title,description,price,images,wished=false,
   onRemoveFromWishlist=()=>{},
 }) {
-  const {addProduct} = useContext(CartContext);
   const url = '/product/'+_id;
   const [isWished,setIsWished] = useState(wished);
   function addToWishlist(ev) {
@@ -122,9 +122,7 @@ export default function ProductBox({
           <Price>
             ${price}
           </Price>
-          <Button block onClick={() => addProduct(_id)} primary outline>
-            Add to cart
-          </Button>
+          <FlyingButton _id={_id} src={images?.[0]}>Add to cart</FlyingButton>
         </PriceRow>
       </ProductInfoBox>
     </ProductWrapper>
