@@ -113,11 +113,11 @@ export default function AccountPage() {
                     {orderLoaded && (
                       <div>
                         {orders.length === 0 && (
+                          <p>No orders found</p>
+                        )}
+                        {!session && (
                           <p>Login to see your orders</p>
                         )}
-                        {orders.length > 0 && orders.map(o => (
-                          <SingleOrder {...o} />
-                        ))}
                       </div>
                     )}
                   </>
