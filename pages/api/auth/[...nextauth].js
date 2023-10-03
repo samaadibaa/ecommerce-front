@@ -9,7 +9,6 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_FRONT_ID,
       clientSecret: process.env.GOOGLE_FRONT_SECRET,
-      redirectUri: 'http://ecommerce-front.vercel.app/api/auth/callback/google'
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
