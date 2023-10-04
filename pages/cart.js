@@ -122,14 +122,23 @@ export default function CartPage() {
     if (!session) {
       return;
     }
-    axios.get('/api/address').then(response => {
-      setName(response.data.name);
-      setEmail(response.data.email);
-      setCity(response.data.city);
-      setPostalCode(response.data.postalCode);
-      setStreetAddress(response.data.streetAddress);
-      setCountry(response.data.country);
-    });
+
+    axios.get('/api/address')
+      .then((response) => {
+        if (response.data) {
+          setName(response.data.name || '');
+          setEmail(response.data.email || '');
+          setCity(response.data.city || '');
+          setPostalCode(response.data.postalCode || '');
+          setStreetAddress(response.data.streetAddress || '');
+          setCountry(response.data.country || '');
+        } else {
+          console.error("Address data not available");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching address data:", error);
+      });
   }, [session]);
   function moreOfThisProduct(id) {
     addProduct(id);

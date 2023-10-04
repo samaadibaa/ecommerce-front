@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import Title from "@/components/Title";
 import Center from "@/components/Center";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Button from "@/components/Button";
@@ -8,9 +7,9 @@ import WhiteBox from "@/components/WhiteBox";
 import { RevealWrapper } from "next-reveal";
 import Input from "@/components/Input";
 import { useEffect, useState } from "react";
+import ProductBox from "@/components/ProductBox";
 import axios from "axios";
 import Spinner from "@/components/Spinner";
-import ProductBox from "@/components/ProductBox";
 import Tabs from "@/components/Tabs";
 import SingleOrder from "@/components/SingleOrder";
 
@@ -43,7 +42,7 @@ export default function AccountPage() {
   const [postalCode, setPostalCode] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [country, setCountry] = useState("");
-  const [addressLoaded, setAddressLoaded] = useState(true);
+  const [addressLoaded, setAddressLoaded] = useState(true); 
   const [wishlistLoaded, setWishlistLoaded] = useState(true);
   const [orderLoaded, setOrderLoaded] = useState(true);
   const [wishedProducts, setWishedProducts] = useState([]);
@@ -72,32 +71,45 @@ export default function AccountPage() {
     setAddressLoaded(false);
     setWishlistLoaded(false);
     setOrderLoaded(false);
-    axios.get('/api/address').then(response => {
-      setName(response.data.name);
-      setEmail(response.data.email);
-      setCity(response.data.city);
-      setPostalCode(response.data.postalCode);
-      setStreetAddress(response.data.streetAddress);
-      setCountry(response.data.country);
-      setAddressLoaded(true);
-    });
 
-    axios.get("/api/wishlist").then((response) => {
-      setWishedProducts(response.data.map((wp) => wp.product));
-      setWishlistLoaded(true);
-    });
-    axios.get("/api/orders").then((response) => {
-      setOrders(response.data);
-      setOrderLoaded(true);
-    });
+    axios.get('/api/address')
+      .then((response) => {
+        if (response.data) {
+          setName(response.data.name || '');
+          setEmail(response.data.email || '');
+          setCity(response.data.city || '');
+          setPostalCode(response.data.postalCode || '');
+          setStreetAddress(response.data.streetAddress || '');
+          setCountry(response.data.country || '');
+        }
+        setAddressLoaded(true);
+      })
+      .catch((error) => {
+        console.error("Error fetching address data:", error);
+        setAddressLoaded(true);
+      });
+
+    axios.get('/api/wishlist').then(response => {
+        setWishedProducts(response.data.map(wp => wp.product));
+        setWishlistLoaded(true);
+      });
+
+    axios.get("/api/orders")
+      .then((response) => {
+        setOrders(response.data);
+        setOrderLoaded(true);
+      })
+      .catch((error) => {
+        console.error("Error fetching orders data:", error);
+        setOrderLoaded(true);
+      });
   }, [session]);
 
   function productRemovedFromWishlist(idToRemove) {
-    setWishedProducts((products) => {
-      return [...products.filter((p) => p._id.toString() !== idToRemove)];
+    setWishedProducts(products => {
+      return [...products.filter(p => p._id.toString() !== idToRemove)];
     });
   }
-
   return (
     <>
       <Header key={new Date().getTime()} />
@@ -143,26 +155,24 @@ export default function AccountPage() {
                     )}
                   </>
                 )}
-                {activeTab === "Wishlist" && (
+                {activeTab === 'Wishlist' && (
                   <>
-                    {!wishlistLoaded && <Spinner fullWidth={true} />}
+                    {!wishlistLoaded && (
+                      <Spinner fullWidth={true} />
+                    )}
                     {wishlistLoaded && (
                       <>
                         <WishedProductsGrid>
-                          {wishedProducts.map((wp) => (
-                            <ProductBox
-                              key={wp._id}
-                              {...wp}
-                              wished={true}
-                              onRemoveFromWishlist={productRemovedFromWishlist}
-                            />
+                          {wishedProducts.length > 0 && wishedProducts.map(wp => (
+                            <ProductBox key={wp._id} {...wp} wished={true} onRemoveFromWishlist={productRemovedFromWishlist} />
                           ))}
                         </WishedProductsGrid>
                         {wishedProducts.length === 0 && (
                           <>
-                            {session ? (
+                            {session && (
                               <p>Your wishlist is empty</p>
-                            ) : (
+                            )}
+                            {!session && (
                               <p>Login to add products to your wishlist</p>
                             )}
                           </>
