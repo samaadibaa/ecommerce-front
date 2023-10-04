@@ -72,7 +72,7 @@ export default function AccountPage() {
     setAddressLoaded(false);
     setWishlistLoaded(false);
     setOrderLoaded(false);
-    axios.get("/api/address").then((response) => {
+    axios.get('/api/address').then(response => {
       setName(response.data.name);
       setEmail(response.data.email);
       setCity(response.data.city);
@@ -81,6 +81,7 @@ export default function AccountPage() {
       setCountry(response.data.country);
       setAddressLoaded(true);
     });
+
     axios.get("/api/wishlist").then((response) => {
       setWishedProducts(response.data.map((wp) => wp.product));
       setWishlistLoaded(true);
@@ -122,7 +123,7 @@ export default function AccountPage() {
                             <div>
                               {orders.map((order, index) => (
                                 <SingleOrder
-                                  key={index} // Use index as the key if no unique identifier is available
+                                  key={index}
                                   createdAt={order.createdAt}
                                   line_items={order.line_items}
                                   name={name}
