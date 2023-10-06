@@ -42,7 +42,7 @@ export default function AccountPage() {
   const [postalCode, setPostalCode] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [country, setCountry] = useState("");
-  const [addressLoaded, setAddressLoaded] = useState(true); 
+  const [addressLoaded, setAddressLoaded] = useState(true);
   const [wishlistLoaded, setWishlistLoaded] = useState(true);
   const [orderLoaded, setOrderLoaded] = useState(true);
   const [wishedProducts, setWishedProducts] = useState([]);
