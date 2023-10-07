@@ -83,29 +83,34 @@ const CityHolder = styled.div`
   display:flex;
   gap: 5px;
 `;
-
 export default function CartPage() {
-  const {cartProducts,addProduct,removeProduct,clearCart} = useContext(CartContext);
-  const {data:session} = useSession();
-  const [products,setProducts] = useState([]);
-  const [name,setName] = useState('');
-  const [email,setEmail] = useState('');
-  const [city,setCity] = useState('');
-  const [postalCode,setPostalCode] = useState('');
-  const [streetAddress,setStreetAddress] = useState('');
-  const [country,setCountry] = useState('');
-  const [isSuccess,setIsSuccess] = useState(false);
+  const { cartProducts, addProduct, removeProduct, clearCart } = useContext(CartContext);
+  const { data: session } = useSession();
+  const [products, setProducts] = useState([]);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [country, setCountry] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
   const [shippingFee, setShippingFee] = useState(null);
+
   useEffect(() => {
     if (cartProducts.length > 0) {
-      axios.post('/api/cart', {ids:cartProducts})
+      axios.post('/api/cart', { ids: cartProducts })
         .then(response => {
-          setProducts(response.data);
+          setProducts(response.data || []);
         })
+        .catch(error => {
+          console.error("Error fetching products:", error);
+          setProducts([]);
+        });
     } else {
       setProducts([]);
     }
   }, [cartProducts]);
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
@@ -113,11 +118,17 @@ export default function CartPage() {
     if (window?.location.href.includes('success')) {
       setIsSuccess(true);
       clearCart();
+      localStorage.setItem('cart', JSON.stringify([]));
     }
     axios.get('/api/settings?name=shippingFee').then(res => {
       setShippingFee(res.data.value);
     })
+    .catch(error => {
+      console.error("Error fetching shipping fee:", error);
+      setShippingFee(0); 
+    });
   }, []);
+
   useEffect(() => {
     if (!session) {
       return;
@@ -143,18 +154,21 @@ export default function CartPage() {
   function moreOfThisProduct(id) {
     addProduct(id);
   }
+
   function lessOfThisProduct(id) {
     removeProduct(id);
   }
+
   async function goToPayment() {
     const response = await axios.post('/api/checkout', {
-      name,email,city,postalCode,streetAddress,country,
+      name, email, city, postalCode, streetAddress, country,
       cartProducts,
     });
     if (response.data.url) {
       window.location = response.data.url;
     }
   }
+
   let productsTotal = 0;
   for (const productId of cartProducts) {
     const price = products.find(p => p._id === productId)?.price || 0;

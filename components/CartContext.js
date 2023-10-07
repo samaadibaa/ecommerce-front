@@ -28,6 +28,7 @@ export function CartContextProvider({children}) {
     });
   }
   function clearCart() {
+    console.log('Clearing the cart');
     setCartProducts([]);
   }
   return (
