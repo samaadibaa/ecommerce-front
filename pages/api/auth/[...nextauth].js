@@ -15,3 +15,5 @@ export const authOptions = {
 };
 
 export default NextAuth(authOptions);
+
+console.log('Auth configuration loaded');
