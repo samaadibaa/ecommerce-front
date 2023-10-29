@@ -125,7 +125,7 @@ export default function CartPage() {
     })
     .catch(error => {
       console.error("Error fetching shipping fee:", error);
-      setShippingFee(0); 
+      setShippingFee(0);
     });
   }, []);
 
